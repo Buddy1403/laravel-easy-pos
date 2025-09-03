@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
 use App\Models\Order;
 use Mpdf;
 use Illuminate\Http\Request;
@@ -37,10 +39,10 @@ class UtilityController extends Controller
 
         $html = view('invoices.3-invoice', $data)->render();
 
-        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $defaultConfig = (new ConfigVariables())->getDefaults();
         $fontDirs = $defaultConfig['fontDir'];
         
-        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $defaultFontConfig = (new FontVariables())->getDefaults();
         $fontData = $defaultFontConfig['fontdata'];
         
         $mpdf = new Mpdf\Mpdf([

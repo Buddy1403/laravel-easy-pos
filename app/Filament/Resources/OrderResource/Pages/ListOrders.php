@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\OrderResource\Pages;
 
+use Filament\Actions\CreateAction;
+use Maatwebsite\Excel\Excel;
+use App\Filament\Resources\OrderResource\Widgets\OrderStats;
 use App\Filament\Resources\OrderResource;
 use Filament\Actions;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
@@ -20,13 +23,13 @@ class ListOrders extends ListRecords
     {
 
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
             ExportAction::make() 
             ->exports([
                 ExcelExport::make()
                     ->fromTable()
                     ->withFilename(fn ($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
-                    ->withWriterType(\Maatwebsite\Excel\Excel::CSV)
+                    ->withWriterType(Excel::CSV)
                     ->withColumns([
                         Column::make('customer.phone')->heading('Mobile'),
                         Column::make('customer.email')->heading('Email'),
@@ -40,14 +43,14 @@ class ListOrders extends ListRecords
     protected function getWidgets(): array
     {
         return [
-            OrderResource\Widgets\OrderStats::class,
+            OrderStats::class,
         ];
     }
 
     protected function getHeaderWidgets(): array
     {
         return [
-            OrderResource\Widgets\OrderStats::class,
+            OrderStats::class,
         ];
     }
 }

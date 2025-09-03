@@ -2,10 +2,17 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Maatwebsite\Excel\Excel;
+use App\Filament\Resources\OrderResource\Pages\ListOrders;
+use App\Filament\Resources\OrderResource\Pages\EditOrder;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Models\Order;
 use App\Models\Setting;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -22,15 +29,15 @@ class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-shopping-cart';
 
     protected static ?int $navigationSort = 1;
 
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 //
             ]);
     }
@@ -53,7 +60,7 @@ class OrderResource extends Resource
             ->defaultSort('id', 'desc')
             ->filters([
                 Filter::make('created_at')
-                ->form([
+                ->schema([
                     DatePicker::make('start_date')
                         ->label('From Date'),
                     DatePicker::make('end_date')
@@ -78,18 +85,18 @@ class OrderResource extends Resource
                     return $indicators;
                 }),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                     ExportBulkAction::make()->exports([
                         ExcelExport::make()
                             ->fromTable()
                             ->withFilename(fn ($resource) => $resource::getModelLabel() . '-' . date('Y-m-d'))
-                            ->withWriterType(\Maatwebsite\Excel\Excel::CSV)
+                            ->withWriterType(Excel::CSV)
                             ->withColumns([
                                 Column::make('customer.phone')->heading('Mobile'),
                                 Column::make('customer.email')->heading('Email'),
@@ -117,9 +124,9 @@ class OrderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOrders::route('/'),
+            'index' => ListOrders::route('/'),
             // 'create' => Pages\CreateOrder::route('/create'),
-            'edit' => Pages\EditOrder::route('/{record}/edit'),
+            'edit' => EditOrder::route('/{record}/edit'),
         ];
     }
 }

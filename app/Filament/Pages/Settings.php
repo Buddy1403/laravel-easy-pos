@@ -2,19 +2,19 @@
 
 namespace App\Filament\Pages;
 
+use Filament\Schemas\Schema;
 use Filament\Pages\Page;
 use App\Models\Setting;
-use Filament\Forms\Form;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 
 class Settings extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-cog';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cog';
 
     protected static ?int $navigationSort = 10;
 
-    protected static string $view = 'filament.pages.settings';
+    protected string $view = 'filament.pages.settings';
 
     public array $settings = [];
 
@@ -33,9 +33,9 @@ class Settings extends Page
         session()->flash('success', 'Settings updated successfully!');
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form->schema([
+        return $schema->components([
             TextInput::make('settings.site_name')
                 ->label('Site Name')
                 ->required(),
