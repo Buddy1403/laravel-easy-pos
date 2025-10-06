@@ -20,11 +20,16 @@ class SettingsServiceProvider extends ServiceProvider
      * Bootstrap services.
      */
     public function boot(): void
-    { 
-        if (!Schema::hasTable('settings')) {
-            return;
+    {     
+        try {
+
+            if (!Schema::hasTable('settings')) {
+                return;
+            }
+            $settings = Setting::pluck('value', 'key')->toArray();
+            config()->set('settings', $settings);
+
+        }catch (\Throwable $th) {
         }
-        $settings = Setting::pluck('value', 'key')->toArray();
-        config()->set('settings', $settings);
     }
-}
+}   
