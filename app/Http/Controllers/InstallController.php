@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -35,7 +36,7 @@ class InstallController extends Controller
             echo "✅ Configuration and routes cached.\n";
 
             return response()->json(['message' => 'Installation completed successfully!'], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }

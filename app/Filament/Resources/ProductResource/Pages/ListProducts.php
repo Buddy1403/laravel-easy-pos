@@ -2,6 +2,10 @@
 
 namespace App\Filament\Resources\ProductResource\Pages;
 
+use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
+use Throwable;
+use Filament\Actions\CreateAction;
 use App\Filament\Resources\ProductResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
@@ -19,10 +23,10 @@ class ListProducts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\Action::make('Import Products')
+            Action::make('Import Products')
             ->icon('heroicon-o-arrow-up-tray')
-            ->form([
-                \Filament\Forms\Components\FileUpload::make('file')
+            ->schema([
+                FileUpload::make('file')
                     ->disk('public_uploads')
                     ->directory('imports')
                     ->acceptedFileTypes([
@@ -35,7 +39,7 @@ class ListProducts extends ListRecords
     
                 try {
                     Excel::import(new ProductsImport, public_path('uploads/'.$data['file']));
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     Notification::make()
                         ->title('Import Failed!')
                         ->body($e->getMessage())  
@@ -63,7 +67,7 @@ class ListProducts extends ListRecords
                         Column::make('quantity')->heading('Quantity'),
                     ])
             ]),
-            Actions\CreateAction::make()->color('success'),
+            CreateAction::make()->color('success'),
         ];
     }
 }

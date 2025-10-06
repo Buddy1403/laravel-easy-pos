@@ -10,9 +10,9 @@ use Filament\Tables\Actions\Action;
 
 class Pos extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-plus-circle';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-plus-circle';
 
-    protected static string $view = 'filament.pages.pos';
+    protected string $view = 'filament.pages.pos';
 
     protected static ?string $navigationLabel = 'Point Of Sale';
 
