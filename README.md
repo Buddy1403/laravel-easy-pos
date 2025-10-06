@@ -106,7 +106,9 @@ https://filament-pos.phpbolt.com/laravel-easy-pos.zip
 
 Point the domain name to public_html/public folder.
 
-3. Navigate your-domain.com/install
+3. Edit `.env` file
+
+4. Navigate your-domain.com/install
 
 
 ### Local Install
