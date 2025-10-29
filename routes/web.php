@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\UtilityController;
 use App\Http\Controllers\InstallController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UtilityController;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,17 +18,18 @@ use Illuminate\Support\Facades\Artisan;
 
 Route::get('/', function () {
     app(InstallController::class)->install();
-    return redirect( url('admin/') );
+
+    return redirect(url('admin/'));
 });
 
+Route::get('/install', [InstallController::class, 'install']);
+Route::get('/print/{id}', [UtilityController::class, 'print']);
 
-Route::get('/install',  [InstallController::class, 'install']);
-Route::get('/print/{id}',  [UtilityController::class, 'print']);
-Route::get('/login',  function(){
-    return redirect( url('/admin') );
+Route::get('/login', function () {
+    return redirect(url('/admin'));
 })->name('login');
 
-Route::get('/clear',  function(){
+Route::get('/clear', function () {
     Artisan::call('optimize:clear');
     Artisan::call('cache:clear');
     Artisan::call('config:clear');

@@ -1,7 +1,13 @@
 <div>
-    <input wire:model="query" 
+    <input 
+    id="barcode-input"
+    wire:model="query" 
     wire:keydown.escape="closeErrorModal" 
-    wire:keydown.enter="addToCart" class="p-2 bg-white block w-full text-sm text-gray-900 border border-gray-300 rounded-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Scan barcode..." />
+    wire:keydown.enter="addToCart"
+    class="p-2 bg-white block w-full text-sm text-gray-900 border border-gray-300 rounded-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    placeholder="Scan barcode..." 
+    />
+
    
     @if($error)
     <div class="fixed inset-0 flex items-center justify-center z-50 bg-gray-600 bg-opacity-50 transition-opacity duration-500 ease-in-out" 

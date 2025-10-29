@@ -48,6 +48,7 @@
                         <td colspan="2" class="px-4 py-2 text-center font-semibold">{{ $currency_symbol }}{{ number_format($amount, 2) }}</td>
                     </tr>
                 @endforeach
+                
 
                 <tr class="bg-gray-100 border-gray-400 border">
                     <td colspan="3" class="px-4 py-2 border-r text-right font-bold">Grand Total</td>
@@ -59,7 +60,7 @@
         </table>
     </div>
     <button wire:click="checkout" wire:loading.attr="disabled"  class="bg-green-500 rounded  text-white px-4 py-2 mt-3">
-        <span wire:loading.remove wire:target='checkout'>Save</span>
+        <span wire:loading.remove wire:target='checkout'>Confirm Order</span>
         <span wire:loading wire:target='checkout' class="w-4 h-4 border-2 border-t-red-100 border-transparent rounded-full animate-spin"></span>
     </button>
 </div>

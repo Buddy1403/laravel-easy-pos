@@ -2,80 +2,82 @@
 
 namespace App\Livewire\Order;
 
-use Livewire\Component;
-use App\Models\Cart as CartModel;
-use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Product;
-use App\Models\Setting;
-use Livewire\Attributes\On; 
+use Livewire\Component;
 
 class Cart extends Component
 {
     public $cartItems = [];
 
-    private $currency_symbol;
-
     public $orderId;
+
+    public $moneyReceived = 0;
+
+    public $showConfirmModal = false;
+
+    public $change = 0;
+
+    private $currency_symbol;
 
     public function mount($orderId)
     {
-        $this->orderId = $orderId;  
-
-        $this->cartItems = OrderItem::where('order_id', $orderId)            
-                            ->orderBy('id', 'DESC')
-                            ->get();    
+        $this->orderId = $orderId;
+        $this->cartItems = OrderItem::where('order_id', $orderId)->orderBy('id', 'DESC')->get();
         $this->currency_symbol = config('settings.currency_symbol');
     }
 
-    
     public function render()
     {
-        $this->currency_symbol = config('settings.currency_symbol');
-        return view('livewire.order.cart', ['cartItems' => $this->cartItems, 'currency_symbol' => $this->currency_symbol]);
+        return view('livewire.order.cart', [
+            'cartItems' => $this->cartItems,
+            'currency_symbol' => $this->currency_symbol,
+        ]);
     }
 
-
-    #[On('cartUpdated')]
-    public function updateCart()
+    public function calculateGrandTotal()
     {
-        $this->cartItems = OrderItem::where('order_id', $this->orderId)            
-                                        ->orderBy('id', 'DESC')
-                                        ->get();
-
-        $order = Order::find($this->orderId);
-        
         $total_price = 0;
-        foreach($this->cartItems as $item){ 
-            $total_price += $item->quantity * $item->price;
-        }
-        $order->total_price = $total_price;
-        $order->save();
+        $total_tax = [];
+        $grand_total = 0;
 
+        foreach ($this->cartItems as $item) {
+            $tax = $item->tax;
+            $item_total = $item->price * $item->quantity;
+            $gst_amount = ($item_total * $tax) / 100;
+            $item_total_with_gst = $item_total + $gst_amount;
+            $total_price += $item_total;
+            $total_tax[$tax] = ($total_tax[$tax] ?? 0) + $gst_amount;
+            $grand_total += $item_total_with_gst;
+        }
+
+        return $grand_total;
     }
 
-
-    #[On('cartUpdatedFromItem')] 
-    public function cartUpdatedFromItem()
+    public function confirmCheckout()
     {
-        $this->cartItems = OrderItem::where('order_id', $this->orderId)            
-                                        ->orderBy('id', 'DESC')
-                                        ->get();
+        $grand_total = $this->calculateGrandTotal();
+        if ($this->moneyReceived <= 0) {
+            session()->flash('error', 'Please enter the amount received.');
 
-        $order = Order::find($this->orderId);
-
-        $total_price = 0;
-        foreach($this->cartItems as $item){ 
-            $total_price += $item->quantity * $item->price;
+            return;
         }
-        $order->total_price = $total_price;
-        $order->save();
-                                
+
+        $this->change = $this->moneyReceived - $grand_total;
+        if ($this->change < 0) {
+            session()->flash('error', 'Insufficient payment amount.');
+
+            return;
+        }
+
+        $this->showConfirmModal = true;
     }
 
+    public function proceedCheckout()
+    {
+        $this->showConfirmModal = false;
 
-    public function checkout(){ 
-        return $this->redirect( url('admin/orders') );
+        // Trigger print in browser via JS
+        $this->dispatch('printOrder', url('print/'.$this->orderId));
+
     }
-
 }
