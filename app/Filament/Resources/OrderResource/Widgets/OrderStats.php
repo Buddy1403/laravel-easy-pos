@@ -19,39 +19,47 @@ class OrderStats extends BaseWidget
 
     protected function getStats(): array
     {
-        $currency_symbol = config('settings.currency_symbol');
-        $orders = $this->getPageTableQuery()->with('items')->get();
-        // $sales = $orders?->items->first()?->price ?? 0;
+        $currencySymbol = config('settings.currency_symbol');
+
+        // Retrieve all orders with their items
+        $orders = $this->getPageTableQuery()->with('items.product')->get();
         $totalOrders = $orders->count();
 
         $totalSellingPrice = 0;
         $totalRegularPrice = 0;
 
+        // Compute total sales and cost
         foreach ($orders as $order) {
             foreach ($order->items as $item) {
-                $totalSellingPrice += $item->price * $item->quantity;
-                $totalRegularPrice += $item->product->regular_price * $item->quantity;
+                $sellingPrice = $item->price ?? 0;
+                $regularPrice = $item->product->regular_price ?? 0;
+                $quantity = $item->quantity ?? 1;
+
+                $totalSellingPrice += $sellingPrice * $quantity;
+                $totalRegularPrice += $regularPrice * $quantity;
             }
         }
 
         $totalIncome = $totalSellingPrice - $totalRegularPrice;
 
         return [
-            Stat::make('Total orders', $this->getPageTableQuery()->count())
-                ->description('Total orders')
+            Stat::make('🧾 Total Orders', number_format($totalOrders))
+                ->description('Overall number of orders')
                 ->descriptionIcon('heroicon-o-inbox-stack', IconPosition::Before)
-                ->chart([1, 5, 10, 50])
+                ->chart([5, 10, 25, 50, 100])
                 ->color('success'),
-            Stat::make('Sales', $currency_symbol.number_format($totalSellingPrice, 2))
-                ->description('Total sales')
+
+            Stat::make('💰 Total Sales', $currencySymbol.number_format($totalSellingPrice, 2))
+                ->description('Combined selling price of all items')
                 ->descriptionIcon('heroicon-o-banknotes', IconPosition::Before)
-                ->chart([1, 5, 30, 50])
+                ->chart([10, 30, 60, 80, 100])
                 ->color('info'),
-            Stat::make('Income', $currency_symbol.number_format($totalIncome, 2))
-                ->description('Total income')
-                ->descriptionIcon('heroicon-o-banknotes', IconPosition::Before)
-                ->chart([1, 5, 30, 50])
-                ->color('info'),
+
+            Stat::make('📈 Total Income', $currencySymbol.number_format($totalIncome, 2))
+                ->description('Profit = Sales - Cost')
+                ->descriptionIcon('heroicon-o-chart-bar', IconPosition::Before)
+                ->chart([5, 15, 45, 70, 95])
+                ->color($totalIncome >= 0 ? 'success' : 'danger'),
         ];
     }
 }
