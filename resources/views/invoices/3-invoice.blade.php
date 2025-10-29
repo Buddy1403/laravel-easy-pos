@@ -131,7 +131,7 @@
                 </tr>
                 <tr>
                     <td class="pt-0">VAT {{(int)$item['tax']}}%</td>
-                    <td class="text-center pt-0">{{ number_format($item['price'], 2, '.', '')  }}</td>
+                    <td class="text-center pt-0">{{ number_format($item['selling_price'], 2, '.', '')  }}</td>
                     <td class="text-center pt-0">{{ $item['quantity'] }}</td>
                     @php 
                         $tax = $item['tax'];

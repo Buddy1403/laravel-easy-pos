@@ -12,14 +12,15 @@ class Product extends Model
         'description',
         'image',
         'barcode',
-        'price',
+        'regular_price',
+        'selling_price',
         'tax',
         'quantity',
         'status',
     ];
 
     protected $casts = [
-        'status' => 'boolean'
+        'status' => 'boolean',
     ];
 
     public function getImageUrl()
@@ -28,7 +29,7 @@ class Product extends Model
             /** @phpstan-ignore-next-line */
             return Storage::disk('public_uploads')->url($this->image);
         }
+
         return asset('img/img-placeholder.jpg');
     }
-
 }

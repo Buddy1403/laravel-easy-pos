@@ -2,9 +2,8 @@
 
 namespace App\Livewire\Order;
 
-use App\Models\Product;
-use App\Models\Cart;
 use App\Models\OrderItem;
+use App\Models\Product;
 use Livewire\Component;
 
 class BarcodeScan extends Component
@@ -25,43 +24,45 @@ class BarcodeScan extends Component
         return view('livewire.order.barcode-scan');
     }
 
+    public function addToCart()
+    {
 
-    public function addToCart(){
-
-        if( empty($this->query) ){
+        if (empty($this->query)) {
             return;
         }
-        
+
         $this->error = '';
         $quantity = 1;
         $product = Product::where('barcode', $this->query)->first();
-        if( !$product ){
-            $this->error = 'The '. $this->query . ' ' . ' - Product which does not exist!';
+        if (! $product) {
+            $this->error = 'The '.$this->query.' '.' - Product which does not exist!';
             $this->query = '';
+
             return;
         }
 
-        $cartItem  = OrderItem::firstOrCreate(
+        $cartItem = OrderItem::firstOrCreate(
             [
-                'order_id' => $this->orderId, 'product_id' => $product->id
-            ],[
-                'name' => $product->name, 
-                'quantity' => 0, 
-                'price' => $product->price, 
+                'order_id' => $this->orderId, 'product_id' => $product->id,
+            ], [
+                'name' => $product->name,
+                'quantity' => 0,
+                'price' => $product->selling_price,
                 'tax' => $product->tax,
-            ]  
+            ]
         );
 
-        if( ($product->quantity - $quantity) < 0 ){
+        if (($product->quantity - $quantity) < 0) {
             $this->error = 'Product Is Out of Stock!';
-            if( $cartItem->quantity < 1 ){
+            if ($cartItem->quantity < 1) {
                 $cartItem->delete();
             }
+
             return;
         }
-        
+
         $cartItem->update([
-            'quantity' => $cartItem->quantity + $quantity
+            'quantity' => $cartItem->quantity + $quantity,
         ]);
 
         $product->quantity = $product->quantity - $quantity;
@@ -72,7 +73,8 @@ class BarcodeScan extends Component
         $this->dispatch('cartUpdated');
     }
 
-    public function closeErrorModal(){
+    public function closeErrorModal()
+    {
         $this->error = '';
     }
 }

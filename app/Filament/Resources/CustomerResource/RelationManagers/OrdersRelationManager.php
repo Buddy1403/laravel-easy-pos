@@ -2,21 +2,14 @@
 
 namespace App\Filament\Resources\CustomerResource\RelationManagers;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\CreateAction;
-use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use App\Models\Order;
-use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class OrdersRelationManager extends RelationManager
 {
@@ -45,13 +38,24 @@ class OrdersRelationManager extends RelationManager
             ->filters([
                 //
             ])
-            ->headerActions([
-                CreateAction::make(),
-            ])
             ->recordActions([
-                Action::make('Edit')
-                ->url(fn (Order $record) => route('filament.admin.resources.orders.edit', ['record' => $record->id])),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->form([
+                        \Filament\Forms\Components\TextInput::make('password')
+                            ->label('Admin Password')
+                            ->password()
+                            ->required()
+                            ->rule(function () {
+                                return function (string $attribute, $value, $fail) {
+                                    if (! \Hash::check($value, auth()->user()->password)) {
+                                        $fail('Incorrect admin password.');
+                                    }
+                                };
+                            }),
+                    ])
+                    ->modalHeading('Confirm Deletion')
+                    ->modalDescription('Please enter your admin password to delete this order.'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

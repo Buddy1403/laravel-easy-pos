@@ -1,35 +1,34 @@
-<?php 
+<?php
 
 namespace App\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Tables\Table;
-use Filament\Actions\EditAction;
+use App\Filament\Resources\CustomerResource\Pages;
+use App\Filament\Resources\CustomerResource\Pages\EditCustomer;
+use App\Filament\Resources\CustomerResource\Pages\ListCustomers;
+use App\Filament\Resources\CustomerResource\RelationManagers\OrdersRelationManager;
+use App\Models\Customer;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use App\Filament\Resources\CustomerResource\Pages\ListCustomers;
-use App\Filament\Resources\CustomerResource\Pages\EditCustomer;
-use App\Filament\Resources\CustomerResource\Pages;
-use App\Models\Customer;
-use Filament\Forms;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\IconColumn;
-use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\CustomerResource\RelationManagers\OrdersRelationManager;
-
+use Filament\Tables\Table;
 
 class CustomerResource extends Resource
 {
     protected static ?string $model = Customer::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationLabel = 'Store';
+
+    protected static ?string $pluralLabel = 'Stores';
+
+    protected static ?string $modelLabel = 'Store';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
 
     protected static ?int $navigationSort = 4;
 
@@ -38,9 +37,11 @@ class CustomerResource extends Resource
         return $schema
             ->components([
                 TextInput::make('first_name')
+                    ->label('Site Name')
                     ->required()
                     ->maxLength(20),
                 TextInput::make('last_name')
+                    ->label('Store Name')
                     ->maxLength(20),
                 TextInput::make('email')
                     ->email()
@@ -55,7 +56,7 @@ class CustomerResource extends Resource
                     ->visibility('public')
                     ->disk('public_uploads')
                     ->directory('avatars')
-                    ->nullable()
+                    ->nullable(),
             ]);
     }
 
@@ -63,30 +64,39 @@ class CustomerResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('first_name')->sortable()->searchable(),
-                TextColumn::make('last_name')->searchable(),
-                TextColumn::make('email')->searchable(),
-                TextColumn::make('phone')->searchable(),
+                TextColumn::make('first_name')
+                    ->label('Site Name')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('last_name')
+                    ->label('Store Name')
+                    ->searchable(),
+                TextColumn::make('email')
+                    ->label('Email')
+                    ->searchable(),
+                TextColumn::make('phone')
+                    ->label('Phone')
+                    ->searchable(),
                 TextColumn::make('orders_count')
-                            ->label('Orders')
-                            ->counts('orders')  
-                            ->sortable(),                
+                    ->label('Order Count')
+                    ->counts('orders')
+                    ->sortable(),
                 TextColumn::make('created_at')->sortable()->dateTime(),
             ])
             ->filters([])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                DeleteBulkAction::make(),
+                // DeleteAction::make(),
             ]);
+        // ->toolbarActions([
+        //     DeleteBulkAction::make(),
+        // ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            OrdersRelationManager::class
+            OrdersRelationManager::class,
         ];
     }
 

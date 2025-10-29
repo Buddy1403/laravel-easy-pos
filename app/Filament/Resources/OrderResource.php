@@ -44,9 +44,16 @@ class OrderResource extends Resource
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable(),
                 TextColumn::make('customer.first_name')
-                    ->label('Customer Name')
+                    ->label('Site Name')
                     ->searchable()
-                    ->formatStateUsing(fn ($record) => $record->customer->first_name.' '.$record->customer->last_name),
+                    ->formatStateUsing(fn ($record) => $record->customer->first_name),
+                TextColumn::make('customer.last_name')
+                    ->label('Store Name')
+                    ->searchable()
+                    ->formatStateUsing(fn ($record) => $record->customer->last_name),
+                TextColumn::make('items.name')
+                    ->label('Product')
+                    ->searchable(),
                 TextColumn::make('total_price')
                     ->formatStateUsing(fn ($record) => $currency_symbol.$record->total_price)->sortable(),
                 TextColumn::make('created_at')->sortable()->dateTime(),
@@ -80,9 +87,43 @@ class OrderResource extends Resource
                     }),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->requiresConfirmation()
+                    ->form([
+                        \Filament\Forms\Components\TextInput::make('password')
+                            ->label('Admin Password')
+                            ->password()
+                            ->required()
+                            ->rule(function () {
+                                return function (string $attribute, $value, $fail) {
+                                    if (! \Hash::check($value, auth()->user()->password)) {
+                                        $fail('Incorrect admin password.');
+                                    }
+                                };
+                            }),
+                    ])
+                    ->modalHeading('Confirm Deletion')
+                    ->modalDescription('Please enter your admin password to delete this order.'),
+
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->form([
+                        \Filament\Forms\Components\TextInput::make('password')
+                            ->label('Admin Password')
+                            ->password()
+                            ->required()
+                            ->rule(function () {
+                                return function (string $attribute, $value, $fail) {
+                                    if (! \Hash::check($value, auth()->user()->password)) {
+                                        $fail('Incorrect admin password.');
+                                    }
+                                };
+                            }),
+                    ])
+                    ->modalHeading('Confirm Deletion')
+                    ->modalDescription('Please enter your admin password to delete this order.'),
             ])
+
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
